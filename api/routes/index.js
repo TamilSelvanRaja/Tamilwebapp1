@@ -1,13 +1,11 @@
 const express = require('express');
+const userRoutes = require("./users.route");
 const router = express.Router();
-const userRoutes = require("./user/user.route");
 
-//Testing
-router.get("/test", (req, res) => res.send("Hi Tamil"));
+router.get("/status", (req, res) => res.send("OK"));
 
-// User Route
-router.use("/user", userRoutes);
-
+//For count
+router.use("/users", userRoutes);
 
 
 module.exports = router;
