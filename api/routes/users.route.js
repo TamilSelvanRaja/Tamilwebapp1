@@ -9,7 +9,6 @@ router
    .route('/:userId')
    .get(controller.get)
    .patch(controller.update)
-   .delete(controller.remove);
 
 router
   .route('/')
