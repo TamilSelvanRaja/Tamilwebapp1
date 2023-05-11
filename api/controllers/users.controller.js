@@ -21,14 +21,18 @@ exports.load = async (req, res, next, id) => {
  * @public
  */
 exports.create = async (req, res, next) => {
-  try {
-    const data = new Users(req.body);
-    const savedUsers = await data.save();
-    res.status(httpStatus.CREATED);
-    res.json(savedUsers);
-  } catch (error) {
-    next(error);
-  }
+   let user;
+    user = await Users.findOne({ email: req.body.email});
+   
+  if (user) {
+    return res.json({ msg: false});
+ }else{
+  const data = new Users(req.body);
+  const user = await data.save();
+  res.status(httpStatus.CREATED);
+   return res.json({ msg: true, user});
+ }
+ 
 };
 
 /**
@@ -64,7 +68,6 @@ exports.get = (req, res) => res.json(req.locals.getUser);
  * @public
  */
 exports.userLoginCheck = async (req, res, next) => {
-  console.log(req.query.email);
   let user;
     user = await Users.findOne({ email: req.query.email});
    
