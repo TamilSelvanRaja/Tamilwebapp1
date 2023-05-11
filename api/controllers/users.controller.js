@@ -21,18 +21,21 @@ exports.load = async (req, res, next, id) => {
  * @public
  */
 exports.create = async (req, res, next) => {
-   let user;
-    user = await Users.findOne({ email: req.body.email});
-   
-  if (user) {
+  try {
+  let checkuser;
+  checkuser= await Users.findOne({ email: req.body.email});
+  if(checkuser){
     return res.json({ msg: false});
- }else{
-  const data = new Users(req.body);
-  const user = await data.save();
-  res.status(httpStatus.CREATED);
-   return res.json({ msg: true, user});
- }
+  }else{
+    const data = new Users(req.body);
+    const user = await data.save();
+    res.status(httpStatus.CREATED);
+     return res.json({ msg: true, user});
+  }
  
+  } catch (error) {
+    next(error);
+  } 
 };
 
 /**

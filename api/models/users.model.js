@@ -8,15 +8,12 @@ const adminUserSchema = new mongoose.Schema({
   email: {
     type: String,
     match: /^\S+@\S+\.\S+$/,
-   // required: true,
-    unique: true,
     trim: true,
     lowercase: true,
   },
   mobile: {
     type: String,
-    unique: true,
- },
+  },
   password: {
     type: String,
    // required: true,
