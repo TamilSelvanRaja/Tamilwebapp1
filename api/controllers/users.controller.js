@@ -1,5 +1,7 @@
 const Users = require('../models/users.model');
 const httpStatus = require("http-status");
+const bcrypt = require('bcrypt');
+const salt = bcrypt.genSaltSync(10); // The number of rounds determines the complexity of the hashing algorithm.
 
 /**
  * Load user and append to req.
@@ -27,7 +29,11 @@ exports.create = async (req, res, next) => {
   if(checkuser){
     return res.json({ msg: false});
   }else{
-    const data = new Users(req.body);
+
+    const { name,email,mobile,gender,password} = req.body; // Extract password from req.body
+    const hashedPassword = bcrypt.hashSync(password, salt);
+    const userData = {  name,email,mobile,gender, password: hashedPassword }; // Replace plain password with hashed password
+    const data = new Users(userData);
     const user = await data.save();
     res.status(httpStatus.CREATED);
      return res.json({ msg: true, user});
@@ -84,19 +90,44 @@ exports.userLoginCheck = async (req, res, next) => {
 /**
  * User Login
  * @public
+ * 
  */
 exports.userLogin = async (req, res, next) => {
-   let user;
-    user = await Users.findOne({
-      $and: [
-        { email:req.body.email},
-        { password: req.body.password }
-      ]});
+
+  const { email, password } = req.body;
+  // Find user by email
+  let user;
+  user = await Users.findOne({ email: email});
+
+  console.log(user);
+  if (!user) {
+    return res.status(404).json({ msg: false,message: 'User not found' });
+  }
+
+  // Compare password
+  bcrypt.compare(password, user.password, (err, result) => {
+    if (err) {
+      return res.status(500).json({msg: false,message: 'Internal server error' });
+    }
+
+    if (result) {
+      return res.status(200).json({ msg: true, user});
+    } else {
+      return res.status(401).json({msg: false,message: 'Invalid password' });
+    }
+  });
+
+//    let user;
+//     user = await Users.findOne({
+//       $and: [
+//         { email:req.body.email},
+//         { password: req.body.password }
+//       ]});
    
-  if (user) {
-    return res.json({ msg: true, user});
- }else{
-  return res.json({ msg: false});
-}
+//   if (user) {
+//     return res.json({ msg: true, user});
+//  }else{
+//   return res.json({ msg: false});
+// }
 };
 
